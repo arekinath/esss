@@ -1,0 +1,3 @@
+[submodule "c_src/sss"]
+	path = c_src/sss
+	url = https://github.com/dsprenkels/sss

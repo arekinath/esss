@@ -3,7 +3,7 @@
 CURDIR := $(shell pwd)
 BASEDIR := $(abspath $(CURDIR)/..)
 
-PROJECT ?= $(notdir $(BASEDIR))
+PROJECT ?= sss_nif
 PROJECT := $(strip $(PROJECT))
 
 ERTS_INCLUDE_DIR ?= $(shell erl -noshell -s init stop -eval "io:format(\"~ts/erts-~ts/include/\", [code:root_dir(), erlang:system_info(version)]).")
@@ -48,7 +48,11 @@ cpp_verbose = $(cpp_verbose_$(V))
 link_verbose_0 = @echo " LD    " $(@F);
 link_verbose = $(link_verbose_$(V))
 
-SOURCES := $(shell find $(C_SRC_DIR) -type f \( -name "*.c" -o -name "*.C" -o -name "*.cc" -o -name "*.cpp" \))
+SOURCES :=	$(C_SRC_DIR)/sss_nif.c \
+		$(C_SRC_DIR)/sss/hazmat.c \
+		$(C_SRC_DIR)/sss/randombytes.c \
+		$(C_SRC_DIR)/sss/sss.c \
+		$(C_SRC_DIR)/sss/tweetnacl.c
 OBJECTS = $(addsuffix .o, $(basename $(SOURCES)))
 
 COMPILE_C = $(c_verbose) $(CC) $(CFLAGS) $(CPPFLAGS) -c
