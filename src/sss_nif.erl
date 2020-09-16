@@ -60,19 +60,19 @@ init() ->
     erlang:load_nif(SoName, 0).
 
 -type key() :: iolist().
-%% @doc Length must be 32 bytes exactly.
+%% Length must be 32 bytes exactly.
 
 -type n() :: integer().
-%% @doc The total number of shares.
+%% The total number of shares.
 
 -type k() :: integer().
-%% @doc The threshold (number of shares required to recover).
+%% The threshold (number of shares required to recover).
 
 -type keyshares() :: [binary()].
-%% @doc Containing concatenated key shares
+%% Containing concatenated key shares
 
 -type message() :: iolist().
-%% @doc Must be get_mlen() bytes long.
+%% Must be get_mlen() bytes long.
 
 -spec get_mlen() -> integer().
 get_mlen() -> error(no_nif).
@@ -80,7 +80,7 @@ get_mlen() -> error(no_nif).
 -spec create_shares(message(), n(), k()) -> keyshares().
 create_shares(_Msg, _N, _K) -> error(no_nif).
 
--spec combine_shares(keyshares(), n()) -> message().
+-spec combine_shares(keyshares(), n()) -> {ok, message()} | error.
 combine_shares(_KeyShares, _N) -> error(no_nif).
 
 -spec create_keyshares(key(), n(), k()) -> keyshares().

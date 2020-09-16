@@ -1,6 +1,6 @@
 {application, esss,
- [{description, "An OTP library"},
-  {vsn, "0.1.0"},
+ [{description, "Shamir secret sharing over GF^256"},
+  {vsn, "1.0.0"},
   {registered, []},
   {applications,
    [kernel,
@@ -9,6 +9,8 @@
   {env,[]},
   {modules, []},
 
-  {licenses, ["Apache 2.0"]},
-  {links, []}
+  {licenses, ["BSD-2-Clause"]},
+  {links, [{"GitHub", "https://github.com/arekinath/esss"},
+      {"API docs", "https://arekinath.github.io/esss/index.html"},
+      {"Original library", "https://github.com/dsprenkels/sss"}]}
  ]}.

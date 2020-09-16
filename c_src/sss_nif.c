@@ -85,19 +85,25 @@ sss_nif_combine_shares(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
 	uint8_t *out;
 	sss_Share *shares;
 	ERL_NIF_TERM ret;
+	int rc;
 
 	if (!enif_get_uint(env, argv[1], &k))
 		return (enif_make_badarg(env));
 	if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
 		return (enif_make_badarg(env));
 	if (bin.size != (sizeof (sss_Share) * k))
-		return (enif_make_badarg(env));
+		return (enif_make_atom(env, "error"));
 
 	shares = (sss_Share *)bin.data;
 	out = enif_make_new_binary(env, sss_MLEN, &ret);
 
-	sss_combine_shares(out, shares, k);
-
+	rc = sss_combine_shares(out, shares, k);
+	if (rc == 0) {
+		ret = enif_make_tuple2(env, enif_make_atom(env, "ok"), ret);
+	} else {
+		ret = enif_make_atom(env, "error");
+		explicit_bzero(out, sss_MLEN);
+	}
 	return (ret);
 }
 
