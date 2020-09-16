@@ -29,7 +29,9 @@
 
 -on_load(init/0).
 
--export([create_shares/1]).
+-export([get_mlen/0]).
+-export([create_shares/3, combine_shares/2]).
+-export([create_keyshares/3, combine_keyshares/2]).
 
 try_paths([Last], BaseName) ->
     filename:join([Last, BaseName]);
@@ -57,5 +59,32 @@ init() ->
     SoName = try_paths(Paths1, "sss_nif"),
     erlang:load_nif(SoName, 0).
 
--spec create_shares(term()) -> term().
-create_shares(_) -> error(no_nif).
+-type key() :: iolist().
+%% @doc Length must be 32 bytes exactly.
+
+-type n() :: integer().
+%% @doc The total number of shares.
+
+-type k() :: integer().
+%% @doc The threshold (number of shares required to recover).
+
+-type keyshares() :: [binary()].
+%% @doc Containing concatenated key shares
+
+-type message() :: iolist().
+%% @doc Must be get_mlen() bytes long.
+
+-spec get_mlen() -> integer().
+get_mlen() -> error(no_nif).
+
+-spec create_shares(message(), n(), k()) -> keyshares().
+create_shares(_Msg, _N, _K) -> error(no_nif).
+
+-spec combine_shares(keyshares(), n()) -> message().
+combine_shares(_KeyShares, _N) -> error(no_nif).
+
+-spec create_keyshares(key(), n(), k()) -> keyshares().
+create_keyshares(_Key, _N, _K) -> error(no_nif).
+
+-spec combine_keyshares(keyshares(), n()) -> key().
+combine_keyshares(_KeyShares, _N) -> error(no_nif).

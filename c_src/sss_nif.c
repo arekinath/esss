@@ -40,9 +40,121 @@
 #include "erl_nif.h"
 
 static ERL_NIF_TERM
+sss_nif_get_mlen(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
+{
+	return (enif_make_uint(env, sss_MLEN));
+}
+
+static ERL_NIF_TERM
 sss_nif_create_shares(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
 {
-	return (enif_make_badarg(env));
+	unsigned int n, k, i;
+	ErlNifBinary bin;
+	sss_Share *out;
+	ERL_NIF_TERM outbin, list, tmp;
+
+	if (!enif_get_uint(env, argv[1], &n))
+		return (enif_make_badarg(env));
+	if (!enif_get_uint(env, argv[2], &k))
+		return (enif_make_badarg(env));
+	if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
+		return (enif_make_badarg(env));
+	if (bin.size != sss_MLEN)
+		return (enif_make_badarg(env));
+
+	out = (sss_Share *)enif_make_new_binary(env,
+	    n * sizeof (sss_Share), &outbin);
+
+	sss_create_shares(out, bin.data, n, k);
+
+	list = enif_make_list(env, 0);
+	for (i = 0; i < n; ++i) {
+		tmp = enif_make_sub_binary(env, outbin,
+		    i * sizeof (sss_Share), sizeof (sss_Share));
+		list = enif_make_list_cell(env, tmp, list);
+	}
+
+	return (list);
+}
+
+static ERL_NIF_TERM
+sss_nif_combine_shares(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
+{
+	unsigned int k;
+	ErlNifBinary bin;
+	uint8_t *out;
+	sss_Share *shares;
+	ERL_NIF_TERM ret;
+
+	if (!enif_get_uint(env, argv[1], &k))
+		return (enif_make_badarg(env));
+	if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
+		return (enif_make_badarg(env));
+	if (bin.size != (sizeof (sss_Share) * k))
+		return (enif_make_badarg(env));
+
+	shares = (sss_Share *)bin.data;
+	out = enif_make_new_binary(env, sss_MLEN, &ret);
+
+	sss_combine_shares(out, shares, k);
+
+	return (ret);
+}
+
+static ERL_NIF_TERM
+sss_nif_create_keyshares(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
+{
+	unsigned int n, k, i;
+	ErlNifBinary bin;
+	sss_Keyshare *out;
+	ERL_NIF_TERM outbin, list, tmp;
+
+	if (!enif_get_uint(env, argv[1], &n))
+		return (enif_make_badarg(env));
+	if (!enif_get_uint(env, argv[2], &k))
+		return (enif_make_badarg(env));
+	if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
+		return (enif_make_badarg(env));
+	if (bin.size != 32)
+		return (enif_make_badarg(env));
+
+	out = (sss_Keyshare *)enif_make_new_binary(env,
+	    n * sizeof (sss_Keyshare), &outbin);
+
+	sss_create_keyshares(out, bin.data, n, k);
+
+	list = enif_make_list(env, 0);
+	for (i = 0; i < n; ++i) {
+		tmp = enif_make_sub_binary(env, outbin,
+		    i * sizeof (sss_Keyshare), sizeof (sss_Keyshare));
+		list = enif_make_list_cell(env, tmp, list);
+	}
+
+	return (list);
+}
+
+static ERL_NIF_TERM
+sss_nif_combine_keyshares(ErlNifEnv *env, int argc, const ERL_NIF_TERM argv[])
+{
+	unsigned int k;
+	ErlNifBinary bin;
+	uint8_t *out;
+	sss_Keyshare *shares;
+	ERL_NIF_TERM ret;
+
+	if (!enif_get_uint(env, argv[1], &k))
+		return (enif_make_badarg(env));
+	if (!enif_inspect_iolist_as_binary(env, argv[0], &bin))
+		return (enif_make_badarg(env));
+	if (bin.size != (sizeof (sss_Keyshare) * k))
+		return (enif_make_badarg(env));
+
+	shares = (sss_Keyshare *)bin.data;
+	out = enif_make_new_binary(env, 32, &ret);
+
+	sss_combine_keyshares(out, shares, k);
+
+	return (ret);
 }
 
 static int
@@ -57,7 +169,11 @@ sss_nif_unload(ErlNifEnv *env, void *priv_data)
 }
 
 static ErlNifFunc nif_funcs[] = {
-	{ "create_shares", 1, sss_nif_create_shares },
+	{ "get_mlen", 0, sss_nif_get_mlen },
+	{ "create_shares", 3, sss_nif_create_shares },
+	{ "combine_shares", 2, sss_nif_combine_shares },
+	{ "create_keyshares", 3, sss_nif_create_keyshares },
+	{ "combine_keyshares", 2, sss_nif_combine_keyshares }
 };
 
 ERL_NIF_INIT(sss_nif, nif_funcs, sss_nif_load, NULL, NULL, sss_nif_unload);

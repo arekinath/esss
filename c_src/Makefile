@@ -34,6 +34,8 @@ endif
 CFLAGS += -fPIC -I $(ERTS_INCLUDE_DIR) -I $(ERL_INTERFACE_INCLUDE_DIR)
 CXXFLAGS += -fPIC -I $(ERTS_INCLUDE_DIR) -I $(ERL_INTERFACE_INCLUDE_DIR)
 
+CFLGS += -D_FORTIFY_SOURCE=2 -fno-strict-overflow -fstack-protector-all
+
 LDLIBS += -L $(ERL_INTERFACE_LIB_DIR) -lei
 LDFLAGS += -shared
 
@@ -54,6 +56,9 @@ SOURCES :=	$(C_SRC_DIR)/sss_nif.c \
 		$(C_SRC_DIR)/sss/sss.c \
 		$(C_SRC_DIR)/sss/tweetnacl.c
 OBJECTS = $(addsuffix .o, $(basename $(SOURCES)))
+
+# Force unrolling loops on hazmat.c
+$(C_SRC_DIR)/sss/hazmat.o: CFLAGS += -funroll-loops
 
 COMPILE_C = $(c_verbose) $(CC) $(CFLAGS) $(CPPFLAGS) -c
 COMPILE_CPP = $(cpp_verbose) $(CXX) $(CXXFLAGS) $(CPPFLAGS) -c
