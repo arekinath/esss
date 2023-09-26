@@ -1,6 +1,6 @@
 {application,esss,
              [{description,"Shamir secret sharing over GF^256"},
-              {vsn,"1.0.2"},
+              {vsn,"1.0.3"},
               {registered,[]},
               {applications,[kernel,stdlib]},
               {env,[]},

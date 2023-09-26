@@ -6,9 +6,15 @@ BASEDIR := $(abspath $(CURDIR)/..)
 PROJECT ?= sss_nif
 PROJECT := $(strip $(PROJECT))
 
-ERTS_INCLUDE_DIR ?= $(shell erl -noshell -s init stop -eval "io:format(\"~ts/erts-~ts/include/\", [code:root_dir(), erlang:system_info(version)]).")
-ERL_INTERFACE_INCLUDE_DIR ?= $(shell erl -noshell -s init stop -eval "io:format(\"~ts\", [code:lib_dir(erl_interface, include)]).")
-ERL_INTERFACE_LIB_DIR ?= $(shell erl -noshell -s init stop -eval "io:format(\"~ts\", [code:lib_dir(erl_interface, lib)]).")
+ifeq ($(origin ERTS_INCLUDE_DIR), undefined)
+ERTS_INCLUDE_DIR ::= $(shell erl -noshell -eval "io:format(\"~ts/erts-~ts/include/\", [code:root_dir(), erlang:system_info(version)]), halt().")
+endif
+ifeq ($(origin ERL_INTERFACE_INCLUDE_DIR), undefined)
+ERL_INTERFACE_INCLUDE_DIR ::= $(shell erl -noshell -eval "io:format(\"~ts\", [code:lib_dir(erl_interface, include)]), halt().")
+endif
+ifeq ($(origin ERL_INTERFACE_LIB_DIR), undefined)
+ERL_INTERFACE_LIB_DIR ::= $(shell erl -noshell -eval "io:format(\"~ts\", [code:lib_dir(erl_interface, lib)]), halt().")
+endif
 
 C_SRC_DIR = $(CURDIR)
 C_SRC_OUTPUT ?= $(CURDIR)/../priv/$(PROJECT).so
